@@ -1,0 +1,19 @@
+.container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: solid black 1px;
+    padding: 32px;
+    margin: 64px;
+}
+
+.square {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    border: solid black 1px;
+    padding: 32px;
+
+    font-size: 32px;
+}
