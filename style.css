@@ -7,6 +7,14 @@
     margin: 64px;
 }
 
+.rowOne,
+.rowTwo,
+.rowThree {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+}
+
 .square {
     display: flex;
     justify-content: center;
