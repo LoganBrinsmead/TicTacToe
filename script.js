@@ -1,110 +1,218 @@
-/*
-        Name:           TicTacToe
-        Author:         Logan Brinsmead
-        Date:           January 2, 2022
-        Description:    Use modules, factory functions, and general object concepts to create a simple TicTacToe game.
-                        Inspired by the Odin Project. :)
-*/
+
+const Gameboard = (() => {
+    let _gameboardArray = [];
+
+    const setGameboard = (value) => {_gameboardArray.push(value)};
+    const getGameboard = () => _gameboardArray;
+
+    return {setGameboard, getGameboard};
+})();
 
 
-
-// factory func for the players
 const Player = (symbol, name) => {
-    const getName = () => name;
-    const getSymbol = () => symbol;     // symbol === X or O
-    return {getName, getSymbol};
+    let _playerArray = [];
+
+    const setScore = (value) => {_playerArray.push(value)};
+    const getScore = () => _playerArray;
+
+    return {
+        symbol,
+        name,
+        setScore,
+        getScore
+    };
 };
 
-// module to update the display
 const DisplayController = (() => {
-    const gameboard = Gameboard.setGameboard(['1','2','3','4','5','6','7','8','9']);
-    let x = 0;
-    const updateScreen = () => {document.querySelectorAll('.square').forEach(square => {
-        square.textContent = gameboard[x];
-        x++;
-    });
-};
-    const reset = () => {
-        // reset everything
-    }
-    return {updateScreen, clearScreen};
+    const updateScreen = (symbol) => {
+        document.querySelectorAll('.square').forEach(square => {
+            square.addEventListener('click', () => {
+                square.textContent = symbol;
+                square.disabled = true;
+            });
+        });
+    };
+    return {updateScreen};
 })();
 
-
-// module for the gameboard
-const Gameboard = (() =>{
-    let gameboard;
-    const setGameboard = (newGameboard) => gameboard = newGameboard;
-    const getGameboard = () => gameboard;
-    return {getGameboard, setGameboard};
-})();
-
-// module with closure for checking for a win/tie and declaring the winner
 const Game = (() => {
+    let _turn = 1;          // player 1 === 1, player 2 === 2
 
-    // make the objects we need to run the game
-    const changeDisplay = DisplayController.updateScreen();     // change the display
-    const Gameboard = Gameboard.setGameboard();                 // change the gameboard
+    const gameboard = Gameboard;
+    const Display = DisplayController;
 
-    const checkWinner = (playerOneScore, playerTwoScore) => {
-        if (playerOneScore.includes([1,2,3]) || 
-            playerOneScore.includes([1,4,7]) ||
-            playerOneScore.includes([1,5,9]) || 
-            playerOneScore.includes([7,8,9]) ||
-            playerOneScore.includes([4,5,6]) || 
-            playerOneScore.includes([2,5,8]) || 
-            playerOneScore.includes([3,6,9])) {
-                return true;
-            } else if (playerTwoScore.includes([1,2,3]) || 
-            playerTwoScore.includes([1,4,7]) ||
-            playerTwoScore.includes([1,5,9]) || 
-            playerTwoScore.includes([7,8,9]) ||
-            playerTwoScore.includes([4,5,6]) || 
-            playerTwoScore.includes([2,5,8]) || 
-            playerTwoScore.includes([3,6,9])) {
-                return false;
-            }
+    const PlayerOne = Player('X', 'Logan');
+    const PlayerTwo = Player('O', 'Computer');
+
+    const _checkWinner = (score) => {
+        if (score.includes([1,2,3]) || 
+        score.includes([1,4,7]) ||
+        score.includes([1,5,9]) || 
+        score.includes([7,8,9]) ||
+        score.includes([4,5,6]) || 
+        score.includes([2,5,8]) || 
+        score.includes([3,6,9])) {
+            return true;                // there is a winner
+            // someone won!!!
+            // end the game and give the win to whoever got it just by changing the DOM
+        };
+        if (score.length === 9) {
+            const tie = document.createElement('div');
+            tie.textContent = "It's a tie!";
+            document.appendChild(tie);
+            return false;               // there is no winner
+            // it's a tie!!!
+        };
     };
 
-    // make an object for playerOne
-    const playerOne = Player('X', prompt("What is player one's name?"));        // name === input from user, tentatively prompt()
-    // make an object for playerTwo
-    const playerTwo = Player('O', prompt("What is player two's name?"));        // name === input from user, tentatively prompt()
+    
 
-    // the value of the box that they click on and thus what gets added to their respective array
-    let value = 0;
+    const startGame = () => {
+        // function that runs during all the event listeners
+        function event() {
+            const win = document.createElement('div');   
+            const tie = document.createElement('div');
+            tie.textContent = "It's a tie!";
+            if (_turn === 1) {
+                if (_checkWinner(PlayerOne.getScore()) === true) {
+                    win.textContent = `${PlayerOne.name} won!`;
+                    document.appendChild(win);
+                    // add active class to button to restart here
+                }
+                if (_checkWinner(gameboard.getGameboard()) === false) {
+                    document.appendChild(tie);
+                    // add active class to button to restart here
+                }
+                _turn = 2;
+            } else if(_turn === 2) {
+                if (_checkWinner(PlayerTwo.getScore()) === true) {
+                    win.textContent = `${PlayerTwo.name} won!`;
+                    document.appendChild(win);
+                    // add active class to button to restart here
+                }
+                if (_checkWinner(gameboard.getGameboard()) === false) {
+                    document.appendChild(tie);
+                    // add active class to button to restart here
+                }
+                _turn = 1;
+            }
+        }
 
-    // variable to show whos turn it is... start with the user
-    let turn;       // player1 === 1 player 2 === 2
-
-    // what the players have inputted
-    let playerOneInput = [];
-    let playerTwoInput = [];
-
-    // make the event listeners for the gameboard
-    const startGame = () =>  { document.querySelectorAll('.square').forEach(square => {
-        value += 1;     /// value for the square
-        square.addEventListener('click', () => {
-            if (turn === 1) {
-                playerOneInput.push(value);
-                if (checkWinner(playerOneInput, playerTwoInput)) {break};
-                turn = 2;
-            } else if (turn === 2) {
-                playerTwoInput.push(value);
-                if (checkWinner(playerOneInput, playerTwoInput) === false) {break};
-                turn = 1;
-                changeDisplay()
-            };
-            // test //////
-            console.log(value);
-            console.log(turn);
-            // test //////
-            square.disabled = 'true';
+        // add event listeners to each grid item separately
+        document.getElementById('one').addEventListener('click', function handler() {
+            gameboard.setGameboard(1);
+            if (_turn === 1 ) {
+                PlayerOne.setScore(1);
+                Display.updateScreen(PlayerOne.symbol);
+                event();
+                document.getElementById('one').removeEventListener('click', handler);
+                console.log(PlayerOne.getScore());                  // test  
+            } else if (_turn === 2) {
+                PlayerTwo.setScore(1);
+                Display.updateScreen(PlayerTwo.symbol);
+                event();
+            }
+        });
+        document.getElementById('two').addEventListener('click', () => {
+            gameboard.setGameboard(2);
+            if (_turn === 1 ) {
+                PlayerOne.setScore(2);
+                Display.updateScreen(PlayerOne.symbol);
+                event();
+            } else if (_turn === 2) {
+                PlayerTwo.setScore(2);
+                Display.updateScreen(PlayerTwo.symbol);
+                event();
+            }
+            
+        });
+        document.getElementById('three').addEventListener('click', () => {
+            gameboard.setGameboard(3);
+            if (_turn === 1 ) {
+                PlayerOne.setScore(3);
+                Display.updateScreen(PlayerOne.symbol);
+                event();
+            } else if (_turn === 2) {
+                PlayerTwo.setScore(3);
+                Display.updateScreen(PlayerTwo.symbol);
+                event();
+            }
+        });
+        document.getElementById('four').addEventListener('click', () => {
+            gameboard.setGameboard(4);
+            if (_turn === 1 ) {
+                PlayerOne.setScore(4);
+                Display.updateScreen(PlayerOne.symbol);
+                event();
+            } else if (_turn === 2) {
+                PlayerTwo.setScore(4);
+                Display.updateScreen(PlayerTwo.symbol);
+                event();
+            }
+        });
+        document.getElementById('five').addEventListener('click', () => {
+            gameboard.setGameboard(5);
+            if (_turn === 1 ) {
+                PlayerOne.setScore(5);
+                Display.updateScreen(PlayerOne.symbol);
+                event();
+            } else if (_turn === 2) {
+                PlayerTwo.setScore(5);
+                Display.updateScreen(PlayerTwo.symbol);
+                event();
+            }
+        });
+        document.getElementById('six').addEventListener('click', () => {
+            gameboard.setGameboard(6);
+            if (_turn === 1 ) {
+                PlayerOne.setScore(6);
+                Display.updateScreen(PlayerOne.symbol);
+                event();
+            } else if (_turn === 2) {
+                PlayerTwo.setScore(6);
+                Display.updateScreen(PlayerTwo.symbol);
+                event();
+            }
+        });
+        document.getElementById('seven').addEventListener('click', () => {
+            gameboard.setGameboard(7);
+            if (_turn === 1 ) {
+                PlayerOne.setScore(7);
+                Display.updateScreen(PlayerOne.symbol);
+                event();
+            } else if (_turn === 2) {
+                PlayerTwo.setScore(7);
+                Display.updateScreen(PlayerTwo.symbol);
+                event();
+            }
+        });
+        document.getElementById('eight').addEventListener('click', () => {
+            gameboard.setGameboard(8);
+            if (_turn === 1 ) {
+                PlayerOne.setScore(8);
+                Display.updateScreen(PlayerOne.symbol);
+                event();
+            } else if (_turn === 2) {
+                PlayerTwo.setScore(8);
+                Display.updateScreen(PlayerTwo.symbol);
+                event();
+            }
+        });
+        document.getElementById('nine').addEventListener('click', () => {
+            gameboard.setGameboard(9);
+            if (_turn === 1 ) {
+                PlayerOne.setScore(9);
+                Display.updateScreen(PlayerOne.symbol);
+                event();
+            } else if (_turn === 2) {
+                PlayerTwo.setScore(9);
+                Display.updateScreen(PlayerTwo.symbol);
+                event();
+            }
         });
 
-    });
-}})();
+    };
+    return {startGame};
+})();
 
-
-
-
+Game.startGame();
