@@ -24,13 +24,16 @@ const Player = (symbol, name) => {
 };
 
 const DisplayController = (() => {
-    const updateScreen = (symbol) => {
-        document.querySelectorAll('.square').forEach(square => {
-            square.addEventListener('click', () => {
-                square.textContent = symbol;
-                square.disabled = true;
-            });
-        });
+//     const updateScreen = (symbol) => {
+//         document.querySelectorAll('.square').forEach(square => {
+//             square.addEventListener('click', () => {
+//                 square.textContent = symbol;
+//             });
+//         });
+//     };
+
+    const updateScreen = (symbol, square) => {
+            square.textContent = symbol;
     };
     return {updateScreen};
 })();
@@ -44,21 +47,23 @@ const Game = (() => {
     const PlayerOne = Player('X', 'Logan');
     const PlayerTwo = Player('O', 'Computer');
 
-    // TEST!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    Array.prototype.has = function(needles, haystack) {
-        for (let i = 0; i < needles.length; i++) {
-            if($.inArray(needles[i], haystack) == -1) return false;
-        }
-    } 
-
+     
     const _checkWinner = (score) => {
-        if (score.includes([0,1,2]) || 
-        score.includes([0,3,6]) ||
-        score.includes([0,4,8]) || 
-        score.includes([6,7,8]) ||
-        score.includes([3,4,5]) || 
-        score.includes([1,4,7]) || 
-        score.includes([2,5,8])) {
+        const _contains = (first, second) => {
+            const indexArray = first.map(item => {
+               return second.indexOf(item);
+            });
+            return indexArray.indexOf(-1) === -1;
+         }    
+
+        if (_contains([0,1,2], score) || 
+        _contains([0,3,6], score) ||
+        _contains([0,4,8], score) || 
+        _contains([6,7,8], score) ||
+        _contains([3,4,5], score) || 
+        _contains([1,4,7], score) ||
+        _contains([2,4,6], score) || 
+        _contains([2,5,8], score)) {
             return true;                // there is a winner
             // someone won!!!
             // end the game and give the win to whoever got it just by changing the DOM
@@ -76,7 +81,20 @@ const Game = (() => {
 
     const startGame = () => {
         // function that runs during all the event listeners
-        function event() {
+        function event(index, square) {
+
+            console.log('counter: ' + index);       // test
+            gameboard.setGameboard(index);
+            if (_turn === 1) {
+                PlayerOne.setScore(index);
+                console.log('player 1 score: ' + PlayerOne.getScore());          // test
+                Display.updateScreen(PlayerOne.symbol, square);
+            } else if (_turn === 2) {
+                PlayerTwo.setScore(index);
+                console.log('player 2 score: ' + PlayerTwo.getScore());          // test
+                Display.updateScreen(PlayerTwo.symbol, square);
+            }
+
 
             // TEST
             const _test = document.querySelector('.test');
@@ -88,13 +106,8 @@ const Game = (() => {
             tie.textContent = "It's a tie!";
 
             if (_checkWinner(PlayerOne.getScore()) === true) {
-                console.log("HI!!!")            // TEST!!!!
                 win.textContent = `${PlayerOne.name} won!`;
                 _test.appendChild(win);
-                // add active class to button to restart here
-            }
-            if (_checkWinner(gameboard.getGameboard()) === false) {
-                document.appendChild(tie);
                 // add active class to button to restart here
             }
             if (_checkWinner(PlayerTwo.getScore()) === true) {
@@ -113,28 +126,15 @@ const Game = (() => {
             } else if(_turn === 2) {
                 _turn = 1;
             }
+
             return _turn;
         }
-
+    
         document.querySelectorAll('.square').forEach(function(square, index) {
-            square.addEventListener('click', function handler() {
-                    console.log('counter: ' + index);       // test
-                    gameboard.setGameboard(index);
-                    if (_turn === 1) {
-                        PlayerOne.setScore(index);
-                        console.log('player 1 score: ' + PlayerOne.getScore());          // test
-                        Display.updateScreen(PlayerOne.symbol);
-                        event();
-                    } else if (_turn === 2) {
-                        PlayerTwo.setScore(index);
-                        console.log('player 2 score: ' + PlayerTwo.getScore());          // test
-                        Display.updateScreen(PlayerTwo.symbol);
-                        event();       
-                }
-    
-            });
+            square.addEventListener('click', event.bind(null, index, square), {once: true});
+
+
         });
-    
 
 };
 
