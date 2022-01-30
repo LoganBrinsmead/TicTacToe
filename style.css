@@ -1,5 +1,5 @@
 body {
-    background-color: tan;
+    background-color: #233142;
     margin: 0;
     padding: 0;
 }
@@ -7,11 +7,23 @@ body {
 h1 {
     font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
     text-align: center;
-    background-color: lavender;
+    background-color: #455d7a;
+    color: #f95959;
     padding: 32px;
+    margin: 0;
     bottom: 0;
     right: 0;
     left: 0;
+}
+
+#notify {
+    color: #f95959;
+    font-weight: bold;
+    font-style: italic;
+    padding: 8px;
+    margin: 24px;
+    font-size: 32px;
+    background-color: #455d7a;
 }
 
 .container {
@@ -46,21 +58,22 @@ h1 {
     flex-wrap: wrap;
     border: solid black 1px;
     padding: 48px;
-    background-color: grey;
+    background-color: #e3e3e3;
     font-size: 32px;
-    
     height: 16px;
     width: 16px;
+    color: #f95959;
 }
 
 .square:hover {
-    background-color: lightgrey;
+    background-color: #9fd3c7;
     cursor: pointer;
 }
 
 #resetButton {
     display: flex;
-    background-color: lightblue;
+    color: #f95959;
+    background-color: #455d7a;
     font-size: 16px;
     font-weight: bold;
     font-style: italic;
